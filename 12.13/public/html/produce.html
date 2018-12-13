@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			body{
+				line-height: 2;
+			}
+			table{
+				border-collapse: collapse;
+			}
+			th,td{
+				padding: 6px;
+				width: 200px;
+			}
+		</style>
+	</head>
+	<body>
+		<label>商品名称： <input type="text" id="" value="" /></label><br />
+		<label>商品单价： <input type="text" /></label><br />
+		<button>添加</button>
+		<table border="1">
+			<thead>
+				<tr>
+					<th>商品名称</th>
+					<th>商品单价</th>
+					<th>商品id</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</body>
+	<script type="text/html" id="tp1">
+		<%for( i = 0 ; i < data.length ; i++ ){%>
+			<tr>
+				<th><%=data[i].name%></th>
+				<th><%=data[i].price%></th>
+				<th><%=data[i]._id%></th>
+			</tr>
+		<%}%>
+	</script>
+	<script src="../js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../js/ajax_v3.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../js/baiduTemplate.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		$("button").click(function(){
+			var obj = {};
+			obj.name = $("input").eq(0).val();
+			obj.price = $("input").eq(1).val();
+			obj.num = 0;
+			ajax.post("/produce/add",obj).then(res=>{
+				msg();
+			})
+		})
+		
+		msg()
+		function msg(){
+			ajax.get("/produce/huoqu").then(res=>{
+				let data = JSON.parse(res);
+				console.log(data)
+				$("tbody").html(baidu.template("tp1",{data}))
+			})
+		}
+		
+	</script>
+</html>

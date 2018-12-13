@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<style>
+			*{
+				padding: 0;
+				margin: 0;
+				list-style: none;
+				text-decoration: none;
+			}
+			.container{
+				width: 80%;
+				margin: 20px auto;
+				height: 100px;
+				border: 1px solid;
+				text-indent: 10%;
+				line-height: 2;
+				background: pink;
+			}
+			.bottom{
+				width: 80%;
+				height: 100px;
+				margin: auto;
+				border: 1px solid;
+				background: yellow;
+			}
+			.jia,.jian{
+				width: 30px;
+				height: 30px;
+				border-radius: 20px;
+				border: 1px pink solid;
+				outline: none;
+			}
+			.caozuo{
+				display: flex;
+				width: 80%;
+				margin: auto;
+				bottom: 5px;
+				right: 0;
+				justify-content: flex-end;
+			}
+			span{
+				display: block;
+				width: 30px;
+				height: 30px;
+				font-size: 20px;
+				line-height: 30px;
+				text-align: center;
+				text-indent: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="warp"></div>
+		<div class="bottom">
+			<p>
+				总计<strong></strong>元 (&yen;50起送)
+				<input type="button" name="" id="" class="jiesuan" value="结算" />
+			</p>
+		</div>
+	</body>
+	<script type="text/html" id="tp1">
+		<%for( i = 0 ; i < data.length ; i++ ){%>
+			<div class="container">
+				<li>商品名称: <%=data[i].name%></li>
+				<li>商品单价: &yen; <%=data[i].price%></li>
+				<div class="caozuo">
+					<button class="jian" _id="<%=data[i]._id%>">-</button>
+					<span><%=data[i].num%></span>
+					<button class="jia" _id="<%=data[i]._id%>">+</button>	
+				</div>
+			</div>
+		<%}%>
+	</script>
+	<script src="../js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../js/ajax_v3.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../js/baiduTemplate.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		msg()
+		function msg(){
+			ajax.get("/produce/huoqu").then(res=>{
+				let data = JSON.parse(res)
+				console.log(data)
+				$(".warp").html(baidu.template("tp1",{data}))
+				for (var i = 0; i < data.length; i++) {
+					if(data[i].num == 0){
+						$(".jian").eq(i).css("display","none")
+						$("span").eq(i).css("display","none")
+					}else{
+						$(".jian").eq(i).css("display","block")
+						$("span").eq(i).css("display","block")
+					}
+					$(".jia").eq(i).on("click",function(){
+						var x = $(this).prev().html()
+						var y = $(this).attr("_id")
+						$("button").attr("disabled","disabled")
+						ajax.post("/produce/jiafa",{y}).then(res=>{
+							let res1 = JSON.parse(res)
+							console.log(res1.zj)
+							$("strong").html(res1.zj)
+							$("button").removeAttr("disabled")
+							if(res1.zj <= 50){
+								$(".jiesuan").css("display","none")
+							}else{
+								$(".jiesuan").css("display","block")
+							}
+						})
+						$(this).prev().html(Number($(this).prev().html())+1)
+						if($(this).prev().html() == 0){
+							$(this).siblings().css("display","none")
+						}else{
+							$(this).siblings().css("display","block")
+						}
+					})
+					$(".jian").eq(i).on("click",function(){
+						var x = $(this).prev().html()
+						var y = $(this).attr("_id")
+						$("button").attr("disabled","disabled")
+						ajax.post("/produce/jianfa",{y}).then(res=>{
+							let res1 = JSON.parse(res)
+							$("strong").html(res1.zj)
+							$("button").removeAttr("disabled")
+							if(res1.zj <= 50){
+								$(".jiesuan").css("display","none")
+							}else{
+								$(".jiesuan").css("display","block")
+							}
+						})
+						$(this).next().html(Number($(this).next().html())-1)
+						console.log($(this).next().html())
+						if($(this).next().html() == 0){
+							$(this).css("display","none")
+							$(this).next().css("display","none")
+						}else{
+							$(this).css("display","block")
+							$(this).next().css("display","block")
+						}
+					})
+				}
+			})
+		}
+		ajax.get("/produce/huoqu1").then(res=>{
+			let res1 = JSON.parse(res)
+			$("strong").html(res1.zj)
+			if(res1.zj <= 50){
+				$(".jiesuan").css("display","none")
+			}else{
+				$(".jiesuan").css("display","block")
+			}
+		})
+		
+		$(".jiesuan").click(function(){
+			alert("结算")
+		})
+	</script>
+</html>
